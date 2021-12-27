@@ -1,6 +1,8 @@
 import asyncio
 
+from ..broadcast import broadcast
 from .. import shared
+
 
 class Session:
     def __init__(self):
@@ -14,25 +16,24 @@ class Session:
         self.presence = self.previous_presence
         self.ingame = False
 
-        self.first = True
 
-
-    async def fetch_match(self):
+    async def update_match(self):
         if self.ingame:
             await self.client.broadcast_match_data()
 
+    async def update_score(self):
+        if self.ingame:
+            await self.client.broadcast_score()
 
     async def check_presence(self):
         self.previous_presence = self.presence
+        
         changed = False
 
         try:
             self.presence = self.valclient.fetch_presence()
             if self.presence["sessionLoopState"] == "INGAME": # dont want to do stuff in pregame
                 self.ingame = True
-                if self.first:
-                    changed = True
-                    self.first = False
             else:
                 self.ingame = False
 
@@ -42,6 +43,12 @@ class Session:
         except:
             self.ingame = False
 
+        await broadcast({
+                "event": "game_state",
+                "data": self.ingame
+            })
+            
+
         return changed
 
 
@@ -49,11 +56,8 @@ class Session:
         while True:
             print("loop")
             changed = await self.check_presence()
-            # if changed:
-            #     await self.fetch_match()
-            await self.fetch_match()
 
-            if self.ingame:
-                await asyncio.sleep(20)
-            else:
-                await asyncio.sleep(5)
+            await self.update_match()
+            await self.update_score()
+
+            await asyncio.sleep(5)

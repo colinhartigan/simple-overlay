@@ -20,9 +20,7 @@ class Client:
         self.all_content = None
         self.all_comp_data = requests.get("https://valorant-api.com/v1/competitivetiers").json()["data"][-1]["tiers"]
         self.all_agent_data = requests.get("https://valorant-api.com/v1/agents").json()["data"]
-        self.all_weapon_data = requests.get("https://valorant-api.com/v1/weapons").json()["data"]
-        self.all_buddy_data = requests.get("https://valorant-api.com/v1/buddies").json()["data"]
-        self.content_tiers = requests.get("https://valorant-api.com/v1/contenttiers").json()["data"]
+        self.all_map_data = requests.get("https://valorant-api.com/v1/maps").json()["data"]
 
     def get_season(self):
         for season in self.all_content["Seasons"]:
@@ -72,9 +70,7 @@ class Client:
             "event": "match_data",
             "data": {
                 "teams": {}, 
-                "match_data": {}
-            }
-            
+            } 
         }
 
         teams = {
@@ -174,5 +170,50 @@ class Client:
         
 
 
-    def broadcast_score(self):
-        pass
+    async def broadcast_score(self):
+        presence = self.client.fetch_presence()
+
+        host_team = presence["partyOwnerMatchCurrentTeam"]
+
+        halftime_met = presence["partyOwnerMatchScoreAllyTeam"] + presence["partyOwnerMatchScoreEnemyTeam"] >= 12
+
+        if host_team == "Neutral":
+            score_red = int(presence["partyOwnerMatchScoreEnemyTeam"]) if not halftime_met else int(presence["partyOwnerMatchScoreAllyTeam"])
+            score_blue = int(presence["partyOwnerMatchScoreAllyTeam"]) if not halftime_met else int(presence["partyOwnerMatchScoreEnemyTeam"])
+        else: 
+            score_red = int(presence["partyOwnerMatchScoreAllyTeam"]) if host_team == "Red" else int(presence["partyOwnerMatchScoreEnemyTeam"])
+            score_blue = int(presence["partyOwnerMatchScoreEnemyTeam"]) if host_team == "Red" else int(presence["partyOwnerMatchScoreAllyTeam"])
+
+        if halftime_met and host_team == "Neutral":
+            print("switch")
+            holder = score_red
+            print(holder)
+            score_red = score_blue
+            score_blue = holder
+            print(holder)
+
+        tied = score_red == score_blue
+
+        data = {
+            "map_name": next(map for map in self.all_map_data if map["mapUrl"] == presence["partyOwnerMatchMap"])["displayName"],
+            "changed_sides": halftime_met,
+            "score": {
+                "red": {
+                    "rounds_won": score_red,
+                    "winning": score_red > score_blue or tied,
+                },
+                "blue": {
+                    "rounds_won": score_blue,
+                    "winning": score_blue > score_red or tied,
+                },
+            },
+            "round_num": score_red + score_blue + 1,
+        }
+
+        payload = {
+            "event": "score_data",
+            "data": data
+        }
+
+        await broadcast(payload)
+        return

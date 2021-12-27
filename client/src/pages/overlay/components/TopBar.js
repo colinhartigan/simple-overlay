@@ -5,7 +5,9 @@ import { Link } from 'react-router-dom'
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 //components
-import { Typography, Button } from '@material-ui/core'
+import { Typography, Slide, Fade } from '@material-ui/core'
+
+import socket from '../../../services/Socket.js'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -19,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 
     container: {
         width: "450px",
-        height: "72px",
+        height: "70px",
         display: "flex",
         flexDirection: "row",
         justifyContent: "center",
@@ -27,18 +29,17 @@ const useStyles = makeStyles((theme) => ({
     },
 
     team: {
-        width: "183px",
-        flexGrow: 1,
         height: "100%",
         backgroundColor: "#1A252B",
         display: "flex",
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
+        transition: ".5s ease-in-out !important",
     },
 
     score: {
-        width: "40%",
+        width: "45%",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -66,6 +67,15 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: "column",
         justifyContent: "flex-start",
         alignItems: "center",
+    },
+
+    roundNum: {
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        height: "50%",
     }
 
 }))
@@ -75,54 +85,73 @@ function TopBar(props) {
     const classes = useStyles();
     const theme = useTheme();
 
-    return (
-        <div className={classes.root}>
-            <div className={classes.container}>
+    const [scoreData, setScoreData] = useState(null)
 
-                <div className={classes.team} style={{ borderRadius: "0px 0px 0px 30px", backgroundImage: "linear-gradient(0deg, rgba(253,69,84,.2) 0%, rgba(255,255,255,0) 100%)" }}>
-                    <div className={classes.score} style={{ order: 2 }}>
-                        <Typography variant="h3">
-                            <strong>13</strong>
-                        </Typography>
-                    </div>
-                    <div className={classes.teamInfo} style={{ order: 1 }}>
-                        <Typography variant="h5" style={{ opacity: .8 }}>
-                            ATK
-                        </Typography>
-                        <Typography variant="body2" style={{ opacity: .7 }}>
-                            0 - 3
-                        </Typography>
-                    </div>
+    const spectatorMode = false
 
+    useEffect(() => {
+        socket.subscribe("score_data", scoreDataCallback)
+    }, [])
+
+    function scoreDataCallback(response) {
+        setScoreData(response)
+    }
+
+    function generateTeamHeader(teamColor){
+
+        var isRed = teamColor === "red"
+        var color = isRed ? "253,69,84" : "37,174,115"
+
+        return (
+            <div className={classes.team} style={{ 
+                borderRadius: (isRed ? `0px 0px 30px ${spectatorMode ? '30px' : '0px'}` :  `0px 0px ${spectatorMode ? '30px' : '0px'} 30px`),
+                backgroundImage: (scoreData.score[teamColor].winning ? `linear-gradient(0deg, rgba(${color},.2) 0%, rgba(255,255,255,0) 100%)` : null),
+                width: (spectatorMode ? "183px" : "135px"),
+                padding: `${isRed ? '6px' : '0px'} ${!isRed ? '0px' : '6px'}`,
+            }}>
+                <div className={classes.score} style={{ order: (isRed ? 2 : 1) }}>
+                    <Typography variant="h3">
+                        <strong>{scoreData.score[teamColor].rounds_won}</strong>
+                    </Typography>
                 </div>
-
-                <div className={classes.timer}>
-                    <div className={classes.roundNum}>
-                        <Typography variant="overline" style={{ opacity: .6 }}>
-                            ROUND 26
-                        </Typography>
-                    </div>
+                <div className={classes.teamInfo} style={{ order: (isRed ? 1 : 2) }}>
+                    <Typography variant="h5" style={{ opacity: .8 }}>
+                        UwU
+                    </Typography>
+                    <Typography variant="body2" style={{ opacity: .7 }}>
+                        0 - 0
+                    </Typography>
                 </div>
-
-                <div className={classes.team} style={{ borderRadius: "0px 0px 30px 0px", backgroundImage: "linear-gradient(0deg, rgba(37, 174, 115,.2) 0%, rgba(255,255,255,0) 100%)" }}>
-                    <div className={classes.score} style={{ order: 1 }}>
-                        <Typography variant="h3">
-                            <strong>13</strong>
-                        </Typography>
-                    </div>
-                    <div className={classes.teamInfo} style={{ order: 2 }}>
-                        <Typography variant="h5" style={{ opacity: .8 }}>
-                            DEF
-                        </Typography>
-                        <Typography variant="body2" style={{ opacity: .7 }}>
-                            0 - 3
-                        </Typography>
-                    </div>
-
-                </div>
-
             </div>
-        </div>
+        )
+    }
+
+    return (
+        <>
+            {scoreData !== null ?
+                <Slide in={props.ingame} direction="down">
+                    <div className={classes.root}>
+                        <div className={classes.container}>
+
+                            {generateTeamHeader("red")}
+
+                            <Fade in>
+                                <div className={classes.timer}>
+                                    <div className={classes.roundNum}>
+                                        <Typography variant="overline" style={{ opacity: .9 }}>
+                                            ROUND {scoreData.round_num}
+                                        </Typography>
+                                    </div>
+                                </div>
+                            </Fade>
+
+                            {generateTeamHeader("blue")}
+
+                        </div>
+                    </div>
+                </Slide>
+                : null}
+        </>
     )
 }
 

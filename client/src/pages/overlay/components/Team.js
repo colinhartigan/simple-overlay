@@ -82,19 +82,19 @@ function Team(props) {
     }, [])
 
     function updateMatchData(response) {
+        console.log(props)
         setTeamData(response.teams[teamId])
     }
 
     function generatePlayer(puuid) {
 
         const data = teamData[puuid]
-        console.log(data)
         const hasRank = data.rank.tier_image !== ""
         const rankColor = data.rank.accent_color
 
-        console.log(data)
+        console.log(props.ingame)
         return (
-            <Slide in direction={mirrored ? "left" : "right"} mountOnEnter unmountOnExit>
+            <Slide in={props.ingame} direction={mirrored ? "left" : "right"}>
                 <div className={classes.playerContainer}>
                     <Paper
                         variant="outlined"
@@ -116,12 +116,11 @@ function Team(props) {
 
                             {hasRank ?
                                 <div className={classes.playerRank} style={{ order: (mirrored ? 1 : 2) }}>
-                                    <img src={data.rank.tier_image} alt="agent" style={{ marginTop: "7px", height: "auto", width: "85%", padding: "3px", }} />
+                                    <img src={data.rank.tier_image} alt="agent" style={{ marginTop: "8px", height: "auto", width: "80%", objectFit: "cover" }} />
                                     <Typography variant="overline" style={{ color: rankColor, textAlign: "center", lineHeight: "2.3", fontSize: "0.85rem" }}>{data.rank.rr}RR</Typography>
                                 </div>
                                 : null
                             }
-
 
                         </div>
 
