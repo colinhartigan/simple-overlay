@@ -73,18 +73,16 @@ function Team(props) {
     const theme = useTheme();
 
     const mirrored = props.mirrored;
-    const teamId = mirrored ? "blue" : "red";
+    const teamId = props.teamId
 
-    const [teamData, setTeamData] = useState(null);
+    const teamData = props.matchData !== null ? props.matchData.teams[teamId] : null;
 
     useEffect(() => {
-        socket.subscribe("match_data", updateMatchData)
-    }, [])
+        if (props.ingame === false) {
+            console.log("no longer in game")
+        }
+    }, [props.ingame])
 
-    function updateMatchData(response) {
-        console.log(props)
-        setTeamData(response.teams[teamId])
-    }
 
     function generatePlayer(puuid) {
 
@@ -92,9 +90,8 @@ function Team(props) {
         const hasRank = data.rank.tier_image !== ""
         const rankColor = data.rank.accent_color
 
-        console.log(props.ingame)
         return (
-            <Slide in={props.ingame} direction={mirrored ? "left" : "right"}>
+            <Slide key={puuid} in={props.ingame} direction={mirrored ? "left" : "right"}>
                 <div className={classes.playerContainer}>
                     <Paper
                         variant="outlined"
@@ -102,7 +99,7 @@ function Team(props) {
                         style={{
                             backgroundImage: `linear-gradient(0deg, rgba(28,34,42,1) 0%, rgba(255,255,255,0) 75%), url(${data.agent.agent_image})`,
                             backgroundPosition: (data.agent.agent_uuid !== "1e58de9c-4950-5125-93e9-a0aee9f98746" ? "0% 65%" : "50% 50%"),
-                            backgroundSize: (data.agent.agent_uuid !== "1e58de9c-4950-5125-93e9-a0aee9f98746" ? "auto 140%" : "200% 100%"), 
+                            backgroundSize: (data.agent.agent_uuid !== "1e58de9c-4950-5125-93e9-a0aee9f98746" ? "auto 140%" : "200% 100%"),
                             backgroundRepeat: "no-repeat",
                             transform: (mirrored ? "scaleX(-1)" : null),
                             borderColor: (mirrored ? "rgba(37, 174, 115,.3)" : "rgba(253,69,84,.3)"),
@@ -117,7 +114,7 @@ function Team(props) {
                             {hasRank ?
                                 <div className={classes.playerRank} style={{ order: (mirrored ? 1 : 2) }}>
                                     <img src={data.rank.tier_image} alt="agent" style={{ marginTop: "8px", height: "auto", width: "80%", objectFit: "cover" }} />
-                                    <Typography variant="overline" style={{ color: rankColor, textAlign: "center", lineHeight: "2.3", fontSize: "0.85rem" }}>{data.rank.rr}RR</Typography>
+                                    { data.rank.tier !== 0 ? <Typography variant="h6" style={{ color: rankColor, textAlign: "center", lineHeight: "2.3", fontSize: "0.85rem" }}>{data.rank.rr}RR</Typography> : null }
                                 </div>
                                 : null
                             }
@@ -134,11 +131,9 @@ function Team(props) {
     return (
         <div className={classes.root} style={{ left: (mirrored ? null : 0), right: (mirrored ? 0 : null) }}>
             <div className={classes.container}>
-                {teamData !== null ? Object.keys(teamData).map(puuid => {
-                    console.log(puuid)
+                {teamData !== null && teamId !== "" ? Object.keys(teamData).map(puuid => {
                     return generatePlayer(puuid)
                 }) : null}
-
             </div>
         </div>
     )

@@ -20,6 +20,8 @@ class Session:
     async def update_match(self):
         if self.ingame:
             await self.client.broadcast_match_data()
+        #else:
+            #await self.client.clear_match_data()
 
     async def update_score(self):
         if self.ingame:
@@ -44,10 +46,9 @@ class Session:
             self.ingame = False
 
         await broadcast({
-                "event": "game_state",
-                "data": self.ingame
-            })
-            
+            "event": "game_state",
+            "data": self.ingame
+        })
 
         return changed
 

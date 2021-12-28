@@ -60,18 +60,30 @@ class Client:
         try:
             match_id = self.client.coregame_fetch_player()["MatchID"]
             match_data = self.client.coregame_fetch_match(match_id)
+            presence_data = self.client.fetch_presence()
+            host_team = presence_data["partyOwnerMatchCurrentTeam"]
         except:
             print("no longer in game")
             return
 
-        # observers' scores are always team red
+        alt_color = lambda color: "blue" if color == "Red" else "red"
 
         payload = {
             "event": "match_data",
             "data": {
                 "teams": {}, 
+                "team_one": "",
+                "team_two": "",
             } 
         }
+
+        if host_team != "":
+            if host_team != "Neutral": 
+                payload["data"]["team_one"] = host_team.lower()
+                payload["data"]["team_two"] = alt_color(host_team)
+            else: 
+                payload["data"]["team_one"] = "red"
+                payload["data"]["team_two"] = "blue"
 
         teams = {
             "red": {},
@@ -141,33 +153,42 @@ class Client:
 
             return data 
 
-
         for player in match_data["Players"]:
-            if player["TeamID"] != "Neutral":
+            # if the player w/ overlay is also playing, make their team the left side
+            print(host_team, player["TeamID"])
+            teams[player["TeamID"].lower()][player["Subject"]] = {
+                "identity": {
+                    "puuid": player["Subject"],
+                    "name": "",
+                },
 
+                "agent": {
+                    "agent_uuid": player["CharacterID"],
+                    "agent_image": f"https://media.valorant-api.com/agents/{player['CharacterID']}/displayicon.png",
+                    "agent_name": [agent for agent in self.all_agent_data if agent["uuid"] == player["CharacterID"]][0]["displayName"],
+                },
 
-                teams[player["TeamID"].lower()][player["Subject"]] = {
-                    "identity": {
-                        "puuid": player["Subject"],
-                        "name": "",
-                    },
-
-                    "agent": {
-                        "agent_uuid": player["CharacterID"],
-                        "agent_image": f"https://media.valorant-api.com/agents/{player['CharacterID']}/displayicon.png",
-                        "agent_name": next(agent for agent in self.all_agent_data if agent["uuid"] == player["CharacterID"])["displayName"],
-                    },
-
-                    "rank": fetch_mmr_data(player["Subject"]),
-                }
+                "rank": fetch_mmr_data(player["Subject"]),
+            }
 
         fetch_names()
 
         payload["data"]["teams"] = teams
 
         await broadcast(payload)
-        return
         
+
+    async def clear_match_data(self):
+        payload = {
+            "event": "match_data",
+            "data": {
+                "teams": {}, 
+                "team_one": "",
+                "team_two": "",
+            } 
+        }
+        await broadcast(payload)
+
 
 
     async def broadcast_score(self):
@@ -216,4 +237,3 @@ class Client:
         }
 
         await broadcast(payload)
-        return

@@ -30,20 +30,33 @@ function Overlay(props) {
     const theme = useTheme();
 
     const [ingame, setIngame] = useState(false);
+    const [matchData, setMatchData] = useState(null)
+    const [teamOne, setTeamOne] = useState("red");
+    const [teamTwo, setTeamTwo] = useState("blue");
 
     useEffect(() => {
         socket.subscribe("game_state", ingameCallback);
+        socket.subscribe("match_data", matchDataCallback);
     }, [])
 
+    function matchDataCallback(response){
+        setMatchData(response)
+        setTeamOne(response.team_one);
+        setTeamTwo(response.team_two);
+    }
+
     function ingameCallback(response) {
+        if (response === false){
+            setMatchData(null)
+        }
         setIngame(response);
     }
 
     return (
         <div className={classes.root}>
             <TopBar ingame={ingame}/>
-            <Team ingame={ingame}/>
-            <Team ingame={ingame} mirrored />
+            <Team ingame={ingame} teamId={teamOne} matchData={matchData}/>
+            <Team ingame={ingame} mirrored teamId={teamTwo} matchData={matchData}/>
         </div>
     )
 }

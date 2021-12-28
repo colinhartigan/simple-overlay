@@ -57,7 +57,6 @@ const useStyles = makeStyles((theme) => ({
     },
 
     timer: {
-        width: "134px",
         height: "100%",
         // position: "absolute",
         // top: 0,
@@ -75,7 +74,6 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: "center",
         alignItems: "center",
         width: "100%",
-        height: "50%",
     }
 
 }))
@@ -97,60 +95,64 @@ function TopBar(props) {
         setScoreData(response)
     }
 
-    function generateTeamHeader(teamColor){
+    function generateTeamHeader(teamColor) {
 
         var isRed = teamColor === "red"
         var color = isRed ? "253,69,84" : "37,174,115"
 
         return (
-            <div className={classes.team} style={{ 
-                borderRadius: (isRed ? `0px 0px 30px ${spectatorMode ? '30px' : '0px'}` :  `0px 0px ${spectatorMode ? '30px' : '0px'} 30px`),
-                backgroundImage: (scoreData.score[teamColor].winning ? `linear-gradient(0deg, rgba(${color},.2) 0%, rgba(255,255,255,0) 100%)` : null),
-                width: (spectatorMode ? "183px" : "135px"),
-                padding: `${isRed ? '6px' : '0px'} ${!isRed ? '0px' : '6px'}`,
-            }}>
-                <div className={classes.score} style={{ order: (isRed ? 2 : 1) }}>
-                    <Typography variant="h3">
-                        <strong>{scoreData.score[teamColor].rounds_won}</strong>
-                    </Typography>
-                </div>
-                <div className={classes.teamInfo} style={{ order: (isRed ? 1 : 2) }}>
-                    <Typography variant="h5" style={{ opacity: .8 }}>
-                        UwU
-                    </Typography>
-                    <Typography variant="body2" style={{ opacity: .7 }}>
-                        0 - 0
-                    </Typography>
-                </div>
-            </div>
+            <>
+                {scoreData !== null ?
+                    <div className={classes.team} style={{
+                        borderRadius: (isRed ? `0px 0px 30px ${!spectatorMode ? '30px' : '0px'}` : `0px 0px ${!spectatorMode ? '30px' : '0px'} 30px`),
+                        backgroundImage: (scoreData.score[teamColor].winning ? `linear-gradient(0deg, rgba(${color},.2) 0%, rgba(255,255,255,0) 100%)` : null),
+                        width: (spectatorMode ? "183px" : "135px"),
+                        padding: `${isRed ? '6px' : '0px'} ${!isRed ? '0px' : '6px'}`,
+                    }}>
+                        <div className={classes.score} style={{ order: (isRed ? 2 : 1) }}>
+                            <Typography variant="h3">
+                                <strong>{scoreData.score[teamColor].rounds_won}</strong>
+                            </Typography>
+                        </div>
+                        <div className={classes.teamInfo} style={{ order: (isRed ? 1 : 2) }}>
+                            <Typography variant="h5" style={{ opacity: .8 }}>
+                                UwU
+                            </Typography>
+                            <Typography variant="body2" style={{ opacity: .7 }}>
+                                0 - 0
+                            </Typography>
+                        </div>
+                    </div>
+                : null}
+            </>
         )
     }
 
     return (
         <>
-            {scoreData !== null ?
-                <Slide in={props.ingame} direction="down">
-                    <div className={classes.root}>
-                        <div className={classes.container}>
+            <Slide in={props.ingame} direction="down" style={{ timeout: 1000 }}>
+                <div className={classes.root}>
+                    <div className={classes.container}>
 
-                            {generateTeamHeader("red")}
+                        {generateTeamHeader("red")}
 
+                        {scoreData !== null ?
                             <Fade in>
-                                <div className={classes.timer}>
-                                    <div className={classes.roundNum}>
+                                <div className={classes.timer} style={{ width: (spectatorMode ? "134px" : "125px"), }}>
+                                    <div className={classes.roundNum} style={{ height: (spectatorMode ? "50%" : "40%"), }}>
                                         <Typography variant="overline" style={{ opacity: .9 }}>
                                             ROUND {scoreData.round_num}
                                         </Typography>
                                     </div>
                                 </div>
                             </Fade>
+                            : null}
 
-                            {generateTeamHeader("blue")}
+                        {generateTeamHeader("blue")}
 
-                        </div>
                     </div>
-                </Slide>
-                : null}
+                </div>
+            </Slide>
         </>
     )
 }
