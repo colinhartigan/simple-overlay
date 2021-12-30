@@ -13,7 +13,7 @@ class Socket {
             if (this.socket === null || (this.socket !== null && this.socket.readyState !== 1)) {
                 try {
                     console.log("connecting")
-                    this.socket = new WebSocket("ws://localhost:8008");
+                    this.socket = new WebSocket("ws://71.179.88.140:8009");
                     console.log(this.socket)
                     this.socket.onerror = (event) => {
                         console.log(event)
@@ -87,7 +87,6 @@ class Socket {
             })
         }
         
-        console.log(this.subscriptions) 
     }
     unsubscribe(event, callback) {
         if (this.subscriptions[event] !== undefined) {
@@ -120,7 +119,6 @@ class Socket {
             this.socket.onclose = async (event) => {
                 console.log("closed")
                 for (const action of this.subscriptions["onclose"]) {
-                    console.log(action)
                     if (action.type === "onclose") {
                         action.callback()
                         if (action.removable) {

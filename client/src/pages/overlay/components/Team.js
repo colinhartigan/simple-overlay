@@ -54,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
         padding: "0px 7px 0px 7px",
         height: "35%",
         alignSelf: "flex-end",
+        overflow: "hidden",
     },
 
     playerRank: {
@@ -89,6 +90,7 @@ function Team(props) {
         const data = teamData[puuid]
         const hasRank = data.rank.tier_image !== ""
         const rankColor = data.rank.accent_color
+        const teamColor = ((teamId === "red" && !props.matchData.swap_colors) || (teamId !== "red" && props.matchData.swap_colors)) ? "253,69,84" : "37,174,115"
 
         return (
             <Slide key={puuid} in={props.ingame} direction={mirrored ? "left" : "right"}>
@@ -102,7 +104,7 @@ function Team(props) {
                             backgroundSize: (data.agent.agent_uuid !== "1e58de9c-4950-5125-93e9-a0aee9f98746" ? "auto 140%" : "200% 100%"),
                             backgroundRepeat: "no-repeat",
                             transform: (mirrored ? "scaleX(-1)" : null),
-                            borderColor: (mirrored ? "rgba(37, 174, 115,.3)" : "rgba(253,69,84,.3)"),
+                            borderColor: `rgba(${teamColor},.3)`,
                         }}
                     >
                         <div className={classes.content} style={{ transform: (mirrored ? "scaleX(-1)" : null) }}>

@@ -5,6 +5,8 @@ from websockets.exceptions import ConnectionClosedOK, ConnectionClosedError
 
 from .client_management.client import Client
 from .client_management.session import Session
+from .ceremony_management.ceremonies import Ceremonies
+from .team_management.teams import Team_Manager
 
 from . import shared
 
@@ -16,6 +18,10 @@ class Server:
 
     request_lookups = {
         "handshake": lambda: True,
+
+        "ceremony": Ceremonies.play_ceremony,
+        "fetch_team_data": Team_Manager.fetch_team_data,
+        "update_team_data": Team_Manager.update_team_data
     }
 
     @staticmethod
@@ -26,11 +32,12 @@ class Server:
         
         shared.loop = asyncio.get_event_loop()
 
+        # set up other modules
         session = Session()
+        Team_Manager.init_team_data()
 
         #start websocket server
-        start_server = websockets.serve(Server.ws_entrypoint, "", 8008)
-
+        start_server = websockets.serve(Server.ws_entrypoint, "", 8009)
         
         print("server running\nopen https://colinhartigan.github.io/simple-overlay in your browser to use")
         shared.loop.run_until_complete(start_server)
@@ -86,7 +93,7 @@ class Server:
                     }
 
                 await websocket.send(json.dumps(payload))
-                print("responded w/ payload\n----------------------")
+                #print("responded w/ payload\n----------------------")
         
         except ConnectionClosedOK:
             print("disconnected")

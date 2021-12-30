@@ -8,6 +8,8 @@ import { Link, BrowserRouter as Switch, Route, HashRouter, Navigate, Routes } fr
 
 //pages
 import Overlay from "./pages/overlay/Overlay.js"
+import Controller from "./pages/controller/Controller.js"
+
 import socket from "./services/Socket.js";
 
 const mainTheme = createTheme({
@@ -62,13 +64,26 @@ function App(props) {
     const [connected, setConnected] = useState(false)
 
     useEffect(() => {
+        connect()
+        socket.subscribe("onclose", reconnect)
+    }, [])
+
+    function connect(){
         socket.connect()
             .then(() => {
                 setConnected(true)
             })
-    }, [])
+    }
 
-
+    function reconnect(){
+        setConnected(false)
+        while(!connected){
+            setTimeout(() => {
+                console.log("trying to reconnect")
+                connect()  
+            }, 1000)
+        }
+    }
 
     return (
         <ThemeProvider theme={mainTheme}>
@@ -80,6 +95,7 @@ function App(props) {
                     <Routes>
                         <Route exact path="/" element={<Navigate to="/overlay" />} />
                         <Route path="/overlay" element={<Overlay />} />
+                        <Route path="/controller" element={<Controller />} />
                     </Routes>
                 </HashRouter>
 
