@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "flex-end",
+        transition: ".5s ease !important",
     },
 
     teamName: {
@@ -62,8 +63,10 @@ function Ceremony(props) {
     const theme = useTheme();
 
     const containerRef = useRef(null);
+    const hasSubtext = props.subtext !== "" ? true : false;
 
     const [show, setShow] = useState(false);
+    const [showSubtext, setShowSubtext] = useState(hasSubtext ? false : true); // if there is subtext, set it to FALSE first b/c it will be animated in 
 
     const ceremonies = {
         "flawless": {
@@ -80,13 +83,16 @@ function Ceremony(props) {
 
     useEffect(() => {
         run()
-    },[]);
+    }, []);
 
     function run() {
         setShow(true);
         setTimeout(() => {
+            setShowSubtext(true);
+        }, 1200)
+        setTimeout(() => {
             setShow(false);
-        },4000)
+        }, 4000)
     }
 
     return (
@@ -97,16 +103,18 @@ function Ceremony(props) {
                     backgroundSize: "100% auto",
                     backgroundPosition: "50% 50%",
                 }}>
-                    <div className={classes.title} ref={containerRef}>
-                        <Slide in direction="down" timeout={{ enter: 800, }} style={{transitionDelay: 300}} container={containerRef.current}>
-                            <Typography variant="h2">{ceremonyData.title}</Typography>
-                        </Slide>
+                    <div className={classes.title} ref={containerRef} style={{ alignItems: (hasSubtext ? "flex-end" : "center"), height: (hasSubtext ? (showSubtext ? "60%" : "100%") : "100%"), }}>
+                        <Typography variant="h2">{ceremonyData.title}</Typography>
                     </div>
-                    <div className={classes.teamName}>
-                        <Fade in style={{transitionDelay: 1000}}>
-                            <Typography variant="overline" style={{ fontSize: "20px", lineHeight: "40px" }}>{props.subtext}</Typography>
+                    {hasSubtext ?
+                        <Fade in timeout={{ enter: 800, }} style={{ transitionDelay: 1200 }} mountOnEnter unmountOnExit>
+                            <div className={classes.teamName}>
+                                <Typography variant="overline" style={{ fontSize: "20px", lineHeight: "40px" }}>{props.subtext}</Typography>
+
+                            </div>
                         </Fade>
-                    </div>
+                        : null}
+
                 </Paper>
             </div>
         </Grow>

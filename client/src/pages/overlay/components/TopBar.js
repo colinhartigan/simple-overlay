@@ -57,7 +57,6 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        margin: "1%",
     },
 
     timer: {
@@ -120,7 +119,7 @@ function TopBar(props) {
                                     <strong>{scoreData.score[teamName].rounds_won}</strong>
                                 </Typography>
                             </div>
-                            <div className={classes.teamInfo} style={{ order: (!mirrored ? 1 : 2) }}>
+                            <div className={classes.teamInfo} style={{ padding: `0px ${mirrored ? '8px' : '0px'} 0px ${mirrored ? '0px' : '8px'}`, order: (!mirrored ? 1 : 2) }}>
                                 <Typography variant="h5" style={{ opacity: .8 }}>
                                     UwU
                                 </Typography>

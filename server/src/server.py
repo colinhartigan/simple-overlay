@@ -42,7 +42,7 @@ class Server:
         print("server running\nopen https://colinhartigan.github.io/simple-overlay in your browser to use")
         shared.loop.run_until_complete(start_server)
 
-        shared.loop.run_until_complete(session.loop())
+        shared.loop.run_until_complete(session.entrypoint())
 
         shared.loop.run_forever()
 

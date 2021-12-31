@@ -1,4 +1,8 @@
-import asyncio
+import asyncio, websockets, ssl, json, base64
+
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
 
 from ..broadcast import broadcast
 from .. import shared
@@ -27,20 +31,17 @@ class Session:
         if self.ingame:
             await self.client.broadcast_score()
 
-    async def check_presence(self):
+    async def check_ingame(self):
         self.previous_presence = self.presence
-        
-        changed = False
 
         try:
-            self.presence = self.valclient.fetch_presence()
             if self.presence["sessionLoopState"] == "INGAME": # dont want to do stuff in pregame
                 self.ingame = True
             else:
                 self.ingame = False
 
-            if self.previous_presence["sessionLoopState"] != self.presence["sessionLoopState"]:
-                changed = True
+            # if self.previous_presence["sessionLoopState"] != self.presence["sessionLoopState"]:
+            #     changed = True
 
         except:
             self.ingame = False
@@ -50,15 +51,33 @@ class Session:
             "data": self.ingame
         })
 
-        return changed
+    async def presence_listener(self):
+        async with websockets.connect(f'wss://riot:{self.valclient.lockfile["password"]}@localhost:{self.valclient.lockfile["port"]}', ssl=ssl_context) as websocket:
+            await websocket.send('[5, "OnJsonApiEvent_chat_v4_presences"]')    # subscribing to presence event
+            
+            while True:
+                response = await websocket.recv()
+                if response != "":
+                    print("presence")
+                    response = json.loads(response)
+                    if response[2]['data']['presences'][0]['puuid'] == self.valclient.puuid:
+                        self.presence = json.loads(base64.b64decode((response[2]['data']['presences'][0]['private'])))
+                        await self.update_score()
 
 
     async def loop(self):
         while True:
             print("loop")
-            changed = await self.check_presence()
-
-            await self.update_match()
-            await self.update_score()
-
+            if self.ingame:
+                await self.update_match()
+                await self.check_ingame()
             await asyncio.sleep(5)
+        
+
+    async def entrypoint(self):
+        self.presence = self.valclient.fetch_presence()
+        await self.check_ingame()
+        await self.update_score()
+
+        asyncio.ensure_future(self.loop())
+        asyncio.ensure_future(self.presence_listener())

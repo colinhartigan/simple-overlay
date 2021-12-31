@@ -15,7 +15,7 @@ import socket from '../../../../services/Socket.js'
 const useStyles = makeStyles((theme) => ({
     root: {
         width: "100%",
-        height: "100%",
+        height: "auto",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",
