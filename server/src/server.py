@@ -7,6 +7,8 @@ from .client_management.client import Client
 from .client_management.session import Session
 from .ceremony_management.ceremonies import Ceremonies
 from .team_management.teams import Team_Manager
+from .file_management.file_manager import File_Manager
+from .file_management.filepath import Filepath
 
 from . import shared
 
@@ -21,20 +23,25 @@ class Server:
 
         "ceremony": Ceremonies.play_ceremony,
         "fetch_team_data": Team_Manager.fetch_team_data,
-        "update_team_data": Team_Manager.update_team_data
+        "update_team_data": Team_Manager.update_team_data,
     }
 
     @staticmethod
     def start():
+        if not os.path.exists(Filepath.get_appdata_folder()):
+            os.mkdir(Filepath.get_appdata_folder())
 
         if not shared.client.ready:
             Server.reset_valclient()
+            
         
         shared.loop = asyncio.get_event_loop()
 
         # set up other modules
         session = Session()
-        Team_Manager.init_team_data()
+
+        # load storage
+        shared.storage = File_Manager.fetch_storage_file()
 
         #start websocket server
         start_server = websockets.serve(Server.ws_entrypoint, "", 8009)

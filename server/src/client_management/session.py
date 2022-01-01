@@ -58,11 +58,12 @@ class Session:
             while True:
                 response = await websocket.recv()
                 if response != "":
-                    print("presence")
                     response = json.loads(response)
                     if response[2]['data']['presences'][0]['puuid'] == self.valclient.puuid:
+                        print("presence")
                         self.presence = json.loads(base64.b64decode((response[2]['data']['presences'][0]['private'])))
                         await self.update_score()
+                        await self.check_ingame()
 
 
     async def loop(self):
@@ -70,7 +71,6 @@ class Session:
             print("loop")
             if self.ingame:
                 await self.update_match()
-                await self.check_ingame()
             await asyncio.sleep(5)
         
 

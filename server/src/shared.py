@@ -9,5 +9,5 @@ sockets = []
 # asyncio loop
 loop = None
 
-# saved team data
-team_data = {}
+# saved storage data
+storage = {}

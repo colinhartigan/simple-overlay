@@ -189,7 +189,7 @@ class Client:
                         "agent": {
                             "agent_uuid": player["CharacterID"],
                             "agent_image": f"https://media.valorant-api.com/agents/{player['CharacterID']}/displayicon.png",
-                            "agent_name": [agent for agent in self.all_agent_data if agent["uuid"] == player["CharacterID"]][0]["displayName"],
+                            "agent_name": [agent for agent in self.all_agent_data if agent["uuid"] == player["CharacterID"].lower()][0]["displayName"],
                         },
 
                         "rank": fetch_mmr_data(player["Subject"]),

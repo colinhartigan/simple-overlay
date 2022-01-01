@@ -31,13 +31,20 @@ function Overlay(props) {
     const [teamOne, setTeamOne] = useState("red");
     const [teamTwo, setTeamTwo] = useState("blue");
 
+    const [teamData, setTeamData] = useState(null)
+
     const [ceremony, setCeremony] = useState(null);
 
     useEffect(() => {
         socket.subscribe("game_state", ingameCallback);
         socket.subscribe("match_data", matchDataCallback);
         socket.subscribe("ceremony", ceremonyCallback)
+        socket.subscribe("team_data", teamDataCallback)
     }, [])
+
+    function teamDataCallback(response) {
+        setTeamData(response)
+    }
 
     function matchDataCallback(response){
         setMatchData(response)

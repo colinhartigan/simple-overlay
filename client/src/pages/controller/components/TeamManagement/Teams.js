@@ -9,28 +9,47 @@ import { TextField, TableBody, TableCell, TableContainer, TableHead, TableRow } 
 
 import { KeyboardArrowUp, KeyboardArrowDown } from '@material-ui/icons'
 
-import TeamData from './TeamData.js'
+import CurrentTeam from './CurrentTeam.js'
+import TeamListDialog from './TeamListDialog.js'
 import socket from '../../../../services/Socket.js'
 
 const useStyles = makeStyles((theme) => ({
     root: {
         width: "100%",
-        height: "auto",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",
         alignItems: "center",
         maxHeight: "100%",
-        overflow: "auto",
     },
 
     container: {
         width: "100%",
-        padding: "2%",
+        marginTop: "15px",
         height: "auto",
-        maxHeight: "100%",
         overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "center",
     },
+
+    editButton: {
+        width: "90%",
+        height: "50px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        marginTop: "5px",
+        alignItems: "center"
+    },
+
+    grid: {
+        width: "100%",
+        height: "auto",
+        padding: "0px 7px 0px 7px",
+    }
 
 }))
 
@@ -41,38 +60,43 @@ function Teams(props) {
     const theme = useTheme();
 
     const [teamData, setTeamData] = useState(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     useState(() => {
-        socket.request({"request": "fetch_team_data"}, teamDataCallback)
+        socket.request({ "request": "fetch_team_data" }, teamDataCallback)
         socket.subscribe("team_data", teamDataCallback)
     }, []);
 
-    function teamDataCallback(response){
-        console.log(response)
+    function teamDataCallback(response) {
         setTeamData(response)
     }
 
-    function updateTeamData(){
-        socket.send({"request": "update_team_data", "args": {"data": teamData}})
-    }
-
     return (
-        <Paper variant="outlined" className={classes.root}>
-            <div className={classes.container}>
-                {teamData !== null ? Object.keys(teamData.teams).map(teamName => {
-                    return (
-                        <TeamData key={teamName} update={updateTeamData} teamName={teamName} teamData={teamData.teams[teamName]} />
-                    )
-                }) : null}
+        <>
+            {teamData !== null ?
+                <>
+                    <TeamListDialog editor open={dialogOpen} setOpen={setDialogOpen} teamData={teamData} />
+                    <Paper variant="outlined" className={classes.root}>
 
-            </div>
-            <div style={{ width: "80%", height: "40px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                <Button onClick={updateTeamData} variant="outlined" color="primary" style={{ width: "100%", height: "80%", }}>
-                    Save
-                </Button>
-            </div>
+                        <div className={classes.container}>
+                            <Grid container spacing={2} className={classes.grid}>
 
-        </Paper>
+                                <CurrentTeam id="TeamOne" teamData={teamData}/>
+                                <CurrentTeam id="TeamTwo" teamData={teamData}/>
+
+                            </Grid>
+                        </div>
+
+                        <div className={classes.editButton}>
+                            <Button onClick={() => { setDialogOpen(true) }} size="medium" variant="outlined" color="primary" style={{ width: "100%", height: "80%", }}>
+                                Edit teams
+                            </Button>
+                        </div>
+
+                    </Paper>
+                </>
+                : null}
+        </>
     )
 }
 

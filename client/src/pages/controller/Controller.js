@@ -19,17 +19,12 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: "column",
         justifyContent: "flex-start",
         alignItems: "center",
-        maxHeight: "100vh",
     },
 
     container: {
         width: "90%",
-        height: "95vh",
-        maxHeight: "95vh",
-    },
-
-    panel: {
-        height: "100%",
+        height: "95%",
+        maxHeight: "95%",
     },
 
     header: {
@@ -50,18 +45,18 @@ function Controller(props) {
             <div className={classes.header}>
                 so no head?
             </div>
-            <Grid container spacing={3} className={classes.container}>
-                <Grid item xs={12} md={6} >
+            <Grid container spacing={1} className={classes.container}>
+                <Grid item xs={12} md={6} style={{height: "50%"}}>
                     <PlayerList />
                 </Grid>
-                <Grid item xs={12} md={6} >
+                <Grid item xs={12} md={6} style={{height: "50%"}}>
                     <Teams />
                 </Grid>
-                <Grid item xs={12} md={6} >
-                
+                <Grid item xs={12} md={6} style={{height: "50%"}}>
+
                 </Grid>
-                <Grid item xs={12} md={6} >
-                
+                <Grid item xs={12} md={6} style={{height: "50%"}}>
+
                 </Grid>
             </Grid>
         </div>

@@ -8,21 +8,20 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { Collapse, Paper, Grid, Typography, IconButton, Button } from '@material-ui/core'
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 
-import Row from './TableRow.js'
+import Row from './PlayerRow.js'
 import socket from '../../../../services/Socket.js'
 
 const useStyles = makeStyles((theme) => ({
     root: {
         width: "100%",
-        height: "auto",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        maxHeight: "100%",
+        maxHeight: "100%", 
         overflow: "auto",
         overflowX: "hidden",
-        flexGrow: 1,
     },
 
     container: {
