@@ -24,6 +24,8 @@ class Server:
         "ceremony": Ceremonies.play_ceremony,
         "fetch_team_data": Team_Manager.fetch_team_data,
         "update_team_data": Team_Manager.update_team_data,
+        "set_live_team": Team_Manager.set_live_team,
+        "fetch_live_teams": Team_Manager.fetch_live_teams,
     }
 
     @staticmethod

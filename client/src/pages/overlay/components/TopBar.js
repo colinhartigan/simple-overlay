@@ -88,6 +88,8 @@ function TopBar(props) {
 
     const [scoreData, setScoreData] = useState(null)
 
+    const liveTeamData = props.liveTeamData
+    const teamMetadata = props.teamMetadata
     const spectatorMode = false
 
     useEffect(() => {
@@ -99,11 +101,22 @@ function TopBar(props) {
     }
 
     function generateTeamHeader(teamName) {
+        if (scoreData !== null && liveTeamData !== null) {
+            var teamScoreData = scoreData.score[teamName]
+            var mirrored = teamScoreData.mirrored
+            var color = teamScoreData.color === "red" ? "253,69,84" : "37,174,115"
 
-        if (scoreData !== null) {
-            var teamData = scoreData.score[teamName]
-            var mirrored = teamData.mirrored
-            var color = teamData.color === "red" ? "253,69,84" : "37,174,115"
+            var hasTeamData, teamId, teamData
+
+            if (liveTeamData[teamName] !== "") {
+                teamId = liveTeamData[teamName]
+                teamData = teamMetadata[teamId]
+                hasTeamData = true
+            } else {
+                hasTeamData = false
+            }
+
+            console.log(teamData)
 
             return (
                 <>
@@ -115,17 +128,23 @@ function TopBar(props) {
                             padding: `${!mirrored ? '6px' : '0px'} ${mirrored ? '0px' : '6px'}`,
                         }}>
                             <div className={classes.score} style={{ order: (!mirrored ? 2 : 1) }}>
-                                <Typography variant="h3" style={{ width: "80%", textAlign: "center"}}>
+                                <Typography variant="h3" style={{ width: "80%", textAlign: "center" }}>
                                     <strong>{scoreData.score[teamName].rounds_won}</strong>
                                 </Typography>
                             </div>
                             <div className={classes.teamInfo} style={{ padding: `0px ${mirrored ? '8px' : '0px'} 0px ${mirrored ? '0px' : '8px'}`, order: (!mirrored ? 1 : 2) }}>
-                                <Typography variant="h5" style={{ opacity: .8 }}>
-                                    UwU
-                                </Typography>
-                                <Typography variant="body2" style={{ opacity: .7 }}>
-                                    0 - 0
-                                </Typography>
+                                {hasTeamData ?
+                                    <>
+                                        <Typography variant="h5" style={{ opacity: .8 }}>
+                                            {teamData.name_abbr}
+                                        </Typography>
+
+                                        <Typography variant="body2" style={{ opacity: .7 }}>
+                                            {teamData.wins} - {teamData.losses}
+                                        </Typography>
+                                    </>
+                                    : null}
+
                             </div>
                         </div>
                         : null}
@@ -134,8 +153,8 @@ function TopBar(props) {
         } else {
             return null
         }
-
     }
+
 
     return (
         <>
@@ -143,7 +162,7 @@ function TopBar(props) {
                 <Slide in={props.ingame} direction="down" style={{ timeout: 1000 }}>
                     <div className={classes.container}>
 
-                        {generateTeamHeader("team_one")}
+                        {teamMetadata !== null ? generateTeamHeader("TeamOne") : null}
 
                         {scoreData !== null ?
                             <Fade in>
@@ -157,7 +176,7 @@ function TopBar(props) {
                             </Fade>
                             : null}
 
-                        {generateTeamHeader("team_two")}
+                        {teamMetadata !== null ? generateTeamHeader("TeamTwo") : null}
 
                     </div>
                 </Slide>

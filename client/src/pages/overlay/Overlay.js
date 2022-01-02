@@ -31,7 +31,8 @@ function Overlay(props) {
     const [teamOne, setTeamOne] = useState("red");
     const [teamTwo, setTeamTwo] = useState("blue");
 
-    const [teamData, setTeamData] = useState(null)
+    const [teamData, setTeamData] = useState(null);
+    const [liveTeamData, setLiveTeamData] = useState(null)
 
     const [ceremony, setCeremony] = useState(null);
 
@@ -39,11 +40,19 @@ function Overlay(props) {
         socket.subscribe("game_state", ingameCallback);
         socket.subscribe("match_data", matchDataCallback);
         socket.subscribe("ceremony", ceremonyCallback)
+        socket.subscribe("live_team_data", liveTeamDataCallback)
         socket.subscribe("team_data", teamDataCallback)
+
+        socket.request({ "request": "fetch_team_data" }, teamDataCallback)
+        socket.request({ "request": "fetch_live_teams" }, liveTeamDataCallback)
     }, [])
 
-    function teamDataCallback(response) {
+    function teamDataCallback(response){
         setTeamData(response)
+    }
+
+    function liveTeamDataCallback(response) {
+        setLiveTeamData(response)
     }
 
     function matchDataCallback(response){
@@ -70,7 +79,7 @@ function Overlay(props) {
 
     return (
         <div className={classes.root}>
-            <TopBar ingame={ingame}/>
+            <TopBar ingame={ingame} liveTeamData={liveTeamData} teamMetadata={teamData} />
             <Team ingame={ingame} teamId={teamOne} matchData={matchData}/>
             <Team ingame={ingame} mirrored teamId={teamTwo} matchData={matchData}/>
             {ceremony}

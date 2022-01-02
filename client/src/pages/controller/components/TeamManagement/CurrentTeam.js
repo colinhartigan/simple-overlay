@@ -45,41 +45,52 @@ function CurrentTeam(props) {
 
     const id = props.id;
     const teamData = props.teamData;
+    const liveTeamData = props.liveTeamData
 
     useEffect(() => {
-        if(selectedTeamId !== null && teamData[selectedTeamId] !== undefined){
+        if (selectedTeamId !== null && teamData[selectedTeamId] !== undefined) {
             setSelectedTeamData(teamData[selectedTeamId])
         } else {
             setSelectedTeamData(null)
         }
-    },[teamData])
+    }, [teamData])
 
-    function selectCallback(teamId){
+    useEffect(() => {
+        console.log(liveTeamData)
+        if (liveTeamData !== null && liveTeamData[id] !== ""){
+            setSelectedTeamId(liveTeamData[id])
+            setSelectedTeamData(teamData[liveTeamData[id]])
+        }
+    }, [liveTeamData])
+
+    function selectCallback(teamId) {
         setSelectedTeamId(teamId);
         setSelectedTeamData(teamData[teamId])
         setDialogOpen(false);
+        socket.send({ "request": "set_live_team", "args": { "side": id, "team_id": teamId } })
     }
 
-    function resetCallback(){
+    function resetCallback() {
         setSelectedTeamId(null);
         setSelectedTeamData(null);
+        socket.send({ "request": "set_live_team", "args": { "side": id, "team_id": "" } })
     }
 
-    function playFlawless(){
-        socket.send({"request": "ceremony", "args": {"type": "flawless", "subtext": selectedTeamData.name}})
+    function playFlawless() {
+        socket.send({ "request": "ceremony", "args": { "type": "flawless", "subtext": selectedTeamData.name } })
     }
 
     return (
         <>
             <TeamListDialog resetCallback={resetCallback} selectCallback={selectCallback} editor={false} open={dialogOpen} setOpen={setDialogOpen} teamData={teamData} />
-            <Grid item xs={12} style={{ width: "100%", }}>
+            <div style={{width: "100%", height: "auto", margin: "0px 0px 15px 0px"}}>
                 <Paper variant="outlined" className={classes.teamPaper}>
                     <Typography variant="h6">{id} {selectedTeamData !== null ? `(${selectedTeamData.name})` : null}</Typography>
 
                     <div className={classes.teamActions}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
-                                <Button onClick={() => {setDialogOpen(true)}} variant="outlined" color="primary" size="medium" className={classes.actionButton}>
+                                <Button onClick={() => { setDialogOpen(true) }} variant="outlined" color="primary" size="medium" className={classes.actionButton}>
                                     Select team
                                 </Button>
                             </Grid>
@@ -101,7 +112,7 @@ function CurrentTeam(props) {
                         </Grid>
                     </div>
                 </Paper>
-            </Grid>
+            </div>
         </>
     )
 }

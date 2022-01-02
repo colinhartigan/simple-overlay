@@ -257,13 +257,13 @@ class Client:
             "map_name": next(map for map in self.all_map_data if map["mapUrl"] == presence["partyOwnerMatchMap"])["displayName"],
             "changed_sides": halftime_met,
             "score": {
-                "team_one": {
+                "TeamOne": {
                     "color": team_one, 
                     "rounds_won": score_teamone,
                     "winning": score_teamone > score_teamtwo or tied,
                     "mirrored": False,
                 },
-                "team_two": {
+                "TeamTwo": {
                     "color": team_two,
                     "rounds_won": score_teamtwo,
                     "winning": score_teamtwo > score_teamone or tied,

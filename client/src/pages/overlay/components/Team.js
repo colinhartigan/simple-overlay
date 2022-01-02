@@ -116,7 +116,7 @@ function Team(props) {
                             {hasRank ?
                                 <div className={classes.playerRank} style={{ order: (mirrored ? 1 : 2) }}>
                                     <img src={data.rank.tier_image} alt="agent" style={{ marginTop: "8px", height: "auto", width: "80%", objectFit: "cover" }} />
-                                    { data.rank.tier !== 0 ? <Typography variant="h6" style={{ color: rankColor, textAlign: "center", lineHeight: "2.3", fontSize: "0.85rem" }}>{data.rank.rr}RR</Typography> : null }
+                                    {data.rank.tier !== 0 ? <Typography variant="h6" style={{ color: rankColor, textAlign: "center", lineHeight: "2.3", fontSize: "0.85rem" }}>{data.rank.rr}RR</Typography> : null}
                                 </div>
                                 : null
                             }

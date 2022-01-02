@@ -32,8 +32,6 @@ class Session:
             await self.client.broadcast_score()
 
     async def check_ingame(self):
-        self.previous_presence = self.presence
-
         try:
             if self.presence["sessionLoopState"] == "INGAME": # dont want to do stuff in pregame
                 self.ingame = True
@@ -61,6 +59,7 @@ class Session:
                     response = json.loads(response)
                     if response[2]['data']['presences'][0]['puuid'] == self.valclient.puuid:
                         print("presence")
+                        self.previous_presence = self.presence
                         self.presence = json.loads(base64.b64decode((response[2]['data']['presences'][0]['private'])))
                         await self.update_score()
                         await self.check_ingame()
@@ -71,6 +70,7 @@ class Session:
             print("loop")
             if self.ingame:
                 await self.update_match()
+                await self.check_ingame()
             await asyncio.sleep(5)
         
 

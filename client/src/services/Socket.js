@@ -78,7 +78,7 @@ class Socket {
                 existing = true
             }
         }
-        console.log(`existing for ${event}: ${existing}`)
+        //console.log(`existing for ${event}: ${existing}`)
         if(existing === false) {
             this.subscriptions[event].push({
                 "callback": callback,
