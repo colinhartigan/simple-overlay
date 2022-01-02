@@ -102,8 +102,6 @@ function App(props) {
                 : null
             }
 
-
-
         </ThemeProvider>
     );
 }
