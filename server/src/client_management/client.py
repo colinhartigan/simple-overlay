@@ -231,7 +231,7 @@ class Client:
         if not spectating:
             team_one, team_two = self.get_teams("blue")
 
-        if not halftime_met and spectating:
+        if halftime_met and spectating:
             team_one, team_two = self.get_teams(host_team)
         elif spectating and not halftime_met:
             team_two, team_one = self.get_teams(host_team)

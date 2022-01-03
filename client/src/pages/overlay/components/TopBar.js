@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 //components
-import { Typography, Slide, Fade } from '@material-ui/core'
+import { Typography, Slide, Fade, TextField, Button } from '@material-ui/core'
 
 import socket from '../../../services/Socket.js'
 
@@ -87,10 +87,16 @@ function TopBar(props) {
     const theme = useTheme();
 
     const [scoreData, setScoreData] = useState(null)
+    const [ip, setIp] = useState(socket.ip)
 
     const liveTeamData = props.liveTeamData
     const teamMetadata = props.teamMetadata
     const spectatorMode = false
+
+    async function reconnect(){
+        socket.ip = ip
+        await socket.connect()
+    }
 
     useEffect(() => {
         socket.subscribe("score_data", scoreDataCallback)
@@ -182,8 +188,18 @@ function TopBar(props) {
                 </Slide>
 
                 {!props.ingame ?
-                    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-                        <Typography variant="overline" style={{ marginLeft: "10px", marginBottom: "5px", }}>NOT IN GAME</Typography>
+                    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "flex-end", gap: "15px" }}>
+                        {/* <Typography variant="overline" style={{ marginLeft: "10px", marginBottom: "5px", }}>NOT IN GAME</Typography> */}
+                        <TextField
+                            label="server ip"
+                            defaultValue={ip}
+                            onChange={(event) => setIp(event.target.value)}
+                            variant="standard"
+                            size="small"
+                        />
+                        <Button onClick={reconnect} color="primary" variant="outlined" size="small">
+                            Reconnect
+                        </Button>
                     </div>
                     : null
                 }

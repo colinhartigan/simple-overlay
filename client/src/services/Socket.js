@@ -5,35 +5,35 @@ class Socket {
         this.socket = null
         this.subscriptions = {}
         this.listening = false
+        this.ip = "71.179.88.140:8009"
     }
 
     async connect() {
         this.listening = false;
+        if(this.socket !== null){
+            this.socket.close()
+        }
         return new Promise((resolve, reject) => {
-            if (this.socket === null || (this.socket !== null && this.socket.readyState !== 1)) {
-                try {
-                    console.log("connecting")
-                    this.socket = new WebSocket("ws://71.179.88.140:8009");
-                    console.log(this.socket)
-                    this.socket.onerror = (event) => {
-                        console.log(event)
+            try {
+                console.log("connecting")
+                this.socket = new WebSocket(`ws://${this.ip}`);
+                console.log(this.socket)
+                this.socket.onerror = (event) => {
+                    console.log(event)
 
-                        socket = null
-                        return reject();
-                    }
-                    this.socket.onopen = (event) => {
-                        console.log("opened")
-                        console.log(this.socket)
-                        this.messageHandler()
-                        return resolve();
-                    }
-                } catch (error) {
-                    console.log("rip")
-                    this.socket = null;
+                    socket = null
                     return reject();
                 }
-            } else {
-                return resolve();
+                this.socket.onopen = (event) => {
+                    console.log("opened")
+                    console.log(this.socket)
+                    this.messageHandler()
+                    return resolve();
+                }
+            } catch (error) {
+                console.log("rip")
+                this.socket = null;
+                return reject();
             }
         })
     }
@@ -74,19 +74,19 @@ class Socket {
         //check if the callback is already in the subscriptions for the event
         var existing = false
         for (const action in this.subscriptions[event]) {
-            if (action.callback === callback){
+            if (action.callback === callback) {
                 existing = true
             }
         }
         //console.log(`existing for ${event}: ${existing}`)
-        if(existing === false) {
+        if (existing === false) {
             this.subscriptions[event].push({
                 "callback": callback,
                 "removable": removable,
                 "type": type,
             })
         }
-        
+
     }
     unsubscribe(event, callback) {
         if (this.subscriptions[event] !== undefined) {
@@ -94,7 +94,7 @@ class Socket {
         }
         if (this.subscriptions[event].length === 0) {
             delete this.subscriptions[event]
-        } 
+        }
     }
 
     messageHandler() {
